@@ -1,5 +1,4 @@
-company-matching
-================
+# company-matching
 
 ## Matching company entities with company profiles
 --------------------------------------------------
@@ -21,8 +20,6 @@ Both tables have the following structure:
 | `country` | code of the country where the company is located |
 
 It is assumed that there is a 1:n relationship between company profiles and company entities, i.e. one company profile may refer to zero or more company entities.
-
-This **task** consists in analyze the given dataset and...
 
 1. Design an algorithm that allows for matching company entities and company profiles.
 2. Use the `groud_truth.tsv` file to validate the algorithm.

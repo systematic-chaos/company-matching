@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class CompanyMatcher {
 	
 	private String entitiesPath;
@@ -26,9 +28,9 @@ public class CompanyMatcher {
 	
 	public Map<Company, List<Company>> match() throws URISyntaxException, IOException {
 		
-		// Since the entities file is assumed to fit into main memory,
-		// it is stored into a list so that its contents do not need
-		// to be loaded from secondary storage multiple times
+		/* Since the file of entities is assumed to fit into main memory,
+		 * it is stored into a list, so that its contents do not need
+		 * to be loaded from secondary storage multiple times. */
 		Path companyEntitiesPath = Paths.get(getClass().getClassLoader().getResource(entitiesPath).toURI());
 		List<Company> entities = Files.lines(companyEntitiesPath)
 				.map(CompanyMatcher::stringToCompany)
@@ -40,13 +42,9 @@ public class CompanyMatcher {
 		
 		Path companyProfilesPath = Paths.get(getClass().getClassLoader().getResource(profilesPath).toURI());
 		Files.lines(companyProfilesPath).map(CompanyMatcher::stringToCompany).forEach((profile) -> {
-			String companyName = profile.getCompanyName().toLowerCase();
-			String companyPrefix = firstWord(companyName);
 			List<Company> entityIds = entities.parallelStream() // The entities are filtered and mapped in parallel
 				// A entity is considered to correspond to a profile if its name contains the profile's company name
-				.filter((entity) -> entity.getCompanyName().toLowerCase().contains(companyPrefix)
-						|| companyName.contains(firstWord(entity.getCompanyName()))
-						|| profile.getWebsiteUrl().equalsIgnoreCase(entity.getWebsiteUrl()))
+				.filter((entity) -> companyMatch(profile, entity))
 				.collect(Collectors.toList());
 			profiles.put(profile, entityIds);
 		});
@@ -91,7 +89,24 @@ public class CompanyMatcher {
 		return (double) correctClassifications / totalEntities;
 	}
 	
-	public static Map<Long, List<Long>> getCompanyIds(Map<Company, List<Company>> companyMatches) {
+	private boolean companyMatch(Company profile, Company entity) {
+		String profileName = profile.getCompanyName();
+		String entityName = entity.getCompanyName();
+		
+		String profileSite = curateWebsiteUrl(profile.getWebsiteUrl());
+		String entitySite = curateWebsiteUrl(entity.getWebsiteUrl());
+		
+		boolean nameMatch = StringUtils.equalsIgnoreCase(profileName, entityName)
+				|| StringUtils.equalsIgnoreCase(entityName, profileName);
+		boolean websiteMatch = StringUtils.isNotBlank(profileSite) && StringUtils.isNotBlank(entitySite)
+				&& (StringUtils.equalsIgnoreCase(entitySite, profileSite)
+						|| StringUtils.equalsIgnoreCase(profileSite, entitySite));
+		boolean countryMatch = StringUtils.equals(profile.getCountry(), entity.getCountry());
+		
+		return (nameMatch || websiteMatch) && countryMatch;
+	}
+	
+	private static Map<Long, List<Long>> getCompanyIds(Map<Company, List<Company>> companyMatches) {
 		Map<Long, List<Long>> idMatches = new Hashtable<>(companyMatches.size(), 1f);
 		for (Map.Entry<Company, List<Company>> cMatch : companyMatches.entrySet()) {
 			final List<Long> entityIdsAux = new ArrayList<>(cMatch.getValue().size());
@@ -106,16 +121,19 @@ public class CompanyMatcher {
 		long id = Long.valueOf(companyLine[0]);
 		String companyName = companyLine[1];
 		String websiteUrl = companyLine[2];
-		Short foundationYear = null;
-		try {
-			foundationYear = Short.valueOf(companyLine[3]);
-		} catch (NumberFormatException nfe) {}
+		Short foundationYear = StringUtils.isNumeric(companyLine[3]) ?
+				Short.valueOf(companyLine[3]) : null;
 		String city = companyLine.length > 4 ? companyLine[4] : null;
 		String country = companyLine.length > 5 ? companyLine[5] : null;
 		return new Company(id, companyName, websiteUrl, foundationYear, city, country);
 	}
 	
-	private String firstWord(String line) {
-		return line.split(" ")[0].toLowerCase();
+	private String curateWebsiteUrl(String websiteUrl) {
+		if (StringUtils.contains(websiteUrl, "://")) {
+			websiteUrl = StringUtils.substringAfter(websiteUrl, "://");
+		}
+		websiteUrl = StringUtils.removeStartIgnoreCase(websiteUrl, "www.");
+		websiteUrl = StringUtils.removeEnd(websiteUrl, "/");
+		return websiteUrl;
 	}
 }

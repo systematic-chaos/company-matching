@@ -1,3 +1,10 @@
+/**
+ * Matching company entities with company profiles
+ * @author Javier Fernández-Bravo Peñuela
+ * 
+ * tech.company.matching.serializers.CompanyIdsSerializer.java
+ */
+
 package tech.company.matching.serializers;
 
 import java.util.List;

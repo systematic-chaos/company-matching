@@ -1,3 +1,10 @@
+/**
+ * Matching company entities with company profiles
+ * @author Javier Fernández-Bravo Peñuela
+ * 
+ * tech.company.matching.resources.CompanyProfileEntitiesRestResource.java
+ */
+
 package tech.company.matching.resources;
 
 import org.json.JSONException;
@@ -11,5 +18,5 @@ public class CompanyProfileEntitiesRestResource extends CompanyRestResource {
 	@Get
 	public Representation getCompany() throws JSONException {
 		return getCompany(CompanyProfileEntitiesSerializer.getInstance());
-	}
+	}	
 }

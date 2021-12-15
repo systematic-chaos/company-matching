@@ -1,3 +1,10 @@
+/**
+ * Matching company entities with company profiles
+ * @author Javier Fernández-Bravo Peñuela
+ * 
+ * tech.company.matching.restapp.CompanyMatchingRestApplication.java
+ */
+
 package tech.company.matching.restapp;
 
 import java.util.Hashtable;
@@ -50,5 +57,5 @@ public class CompanyMatchingRestApplication extends Application {
 		Map<Long, Map.Entry<Company, List<Company>>> p = new Hashtable<>(m.size(), 1f);
 		m.entrySet().forEach((e) -> p.put(e.getKey().getId(), e));
 		return p;
-	}	
+	}
 }

@@ -1,3 +1,10 @@
+/**
+ * Matching company entities with company profiles
+ * @author Javier Fernández-Bravo Peñuela
+ * 
+ * tech.company.matching.resources.CompanyRestResource.java
+ */
+
 package tech.company.matching.resources;
 
 import java.util.HashSet;
@@ -19,6 +26,9 @@ import tech.company.matching.Company;
 import tech.company.matching.restapp.CompanyMatchingRestApplication;
 import tech.company.matching.serializers.CompanySerializer;
 
+/**
+ * Abstract class providing common functionality for company related REST resources
+ */
 public abstract class CompanyRestResource extends ServerResource {
 	
 	protected CompanyMatchingRestApplication app;
@@ -56,7 +66,7 @@ public abstract class CompanyRestResource extends ServerResource {
 					String.format("Company with profile id %d does not exist.", profileId),
 					MediaType.TEXT_PLAIN);
 		}
-
+		
 		/* In case everything is all right, retrieve and return the company profile
 		 * along with its associated entities. */
 		setStatus(Status.SUCCESS_OK);

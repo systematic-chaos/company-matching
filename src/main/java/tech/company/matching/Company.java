@@ -1,3 +1,10 @@
+/**
+ * Matching company entities with company profiles
+ * @author Javier Fernández-Bravo Peñuela
+ * 
+ * tech.company.matching.Company.java
+ */
+
 package tech.company.matching;
 
 public class Company {
@@ -82,5 +89,5 @@ public class Company {
 		int result = 1;
 		result = prime * result + (int) (id ^ (id >>> 32));
 		return result;
-	}	
+	}
 }
